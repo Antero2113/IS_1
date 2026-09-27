@@ -110,10 +110,3 @@ curl -X POST http://localhost:3000/api/posts \
 │       └── dataRoutes.js      # GET /api/data, POST /api/posts
 └── test/api.test.js           # Интеграционные security-тесты (14 шт.)
 ```
-
-## Примечания
-
-- Для продакшена обязательно задайте сильный `JWT_SECRET` (переменная окружения),
-  иначе приложение выведет предупреждение при старте.
-- БД `data/app.db` создаётся автоматически при первом запуске и попадает в `.gitignore`.
-- В репозиторий НЕ коммитятся: `node_modules/`, `data/`, `.env*`, логи и мусор ОС (см. [`.gitignore`](.gitignore)).
