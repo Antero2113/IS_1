@@ -1,0 +1,46 @@
+{
+  "name": "is_1",
+  "version": "1.0.0",
+  "description": "Lab 1, «Information Security», ITMO — secure REST API (JWT auth, OWASP Top 10 defenses, CI/CD security scanners)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "lint": "eslint .",
+    "security:audit": "npm audit --audit-level=moderate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Antero2113/IS_1.git"
+  },
+  "keywords": [
+    "security",
+    "rest-api",
+    "jwt",
+    "owasp",
+    "itmo",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "bugs": {
+    "url": "https://github.com/Antero2113/IS_1/issues"
+  },
+  "homepage": "https://github.com/Antero2113/IS_1#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^10.11.0",
+    "eslint-plugin-security": "^4.1.0"
+  }
+}

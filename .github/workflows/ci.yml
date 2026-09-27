@@ -1,0 +1,50 @@
+name: CI — Security checks
+
+# Runs automatically on every push and pull request (to any branch).
+on:
+  push:
+  pull_request:
+
+jobs:
+  security:
+    name: SAST + SCA + Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      # ------------------------------------------------------------
+      # SCA — Software Composition Analysis
+      # Scans the dependency tree (incl. transitive deps) against the
+      # npm advisory database. Fails the build on moderate+ issues.
+      # ------------------------------------------------------------
+      - name: SCA — npm audit (dependency vulnerabilities)
+        run: npm audit --audit-level=moderate
+
+      # ------------------------------------------------------------
+      # SAST — Static Application Security Testing
+      # ESLint + eslint-plugin-security flags insecure code patterns
+      # (eval, unsafe regex, object injection, ...).
+      # ------------------------------------------------------------
+      - name: SAST — ESLint with eslint-plugin-security
+        run: npx eslint .
+
+      # ------------------------------------------------------------
+      # Automated security smoke tests:
+      #  - JWT flow / broken auth
+      #  - SQL injection attempts
+      #  - XSS escaping checks
+      #  - brute-force rate limiting
+      # ------------------------------------------------------------
+      - name: Run API security tests
+        run: npm test
