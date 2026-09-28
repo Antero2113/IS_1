@@ -71,10 +71,10 @@ function createApp({ db, config }) {
 
   // Централизованный обработчик ошибок. Express вызывает его, когда в любом
   // middleware/обработчике произошла ошибка (передана в next(err)).
-  // Особенность: сигнатура из ЧЕТЫРЁХ аргументов (err, req, res, next) —
-  // по ней Express понимает, что это обработчик ошибок.
-  // eslint-disable-next-line no-unused-vars
-  app.use((err, req, res, next) => {
+  // Особенность: сигнатура из ЧЕТЫРЁХ аргументов (err, req, res, _next) —
+  // по ней Express понимает, что это обработчик ошибок. Параметр _next не
+  // используется, но обязателен; префикс '_' разрешает правило no-unused-vars.
+  app.use((err, req, res, _next) => {
     console.error('[error]', err.message);          // пишем подробности В ЛОГ
     // Клиенту отдаём ТОЛЬКО общее сообщение — стектрейсы и детали не утекают.
     res.status(err.status || 500).json({ error: 'Internal server error' });
