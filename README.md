@@ -8,14 +8,11 @@
 
 ## Стек
 
-- **Язык / рантайм:** Node.js ≥ 22.5 (используется встроенный модуль `node:sqlite`)
+- **Язык / рантайм:** Node.js ≥ 22.5 
 - **Фреймворк:** Express 5
-- **БД:** SQLite (встроенный `node:sqlite` — без нативной компиляции; параметризованные запросы)
+- **БД:** SQLite 
 - **Аутентификация:** JWT (`jsonwebtoken`) + bcrypt (`bcryptjs`, cost factor 12)
 - **Защита:** `helmet` (HTTP-заголовки), `express-rate-limit` (брутфорс-защита логина)
-- **SAST:** ESLint + `eslint-plugin-security`
-- **SCA:** `npm audit`
-- **Тесты:** встроенный runner Node.js (`node --test`) — без дополнительных зависимостей
 
 ## Запуск
 
@@ -25,7 +22,7 @@ npm start        # http://localhost:3000
 npm run dev      # с автоперезапуском (node --watch)
 ```
 
-Тестовые учётные записи (пароли хранятся только как bcrypt-хэши):
+Тестовые учётные записи (пароли хранятся как bcrypt-хэши):
 
 | Логин | Пароль     | Роль  |
 |-------|------------|-------|
@@ -50,12 +47,12 @@ npm run dev      # с автоперезапуском (node --watch)
 | `POST` | `/auth/login`   | публичный | Аутентификация, выдача JWT                      |
 | `GET`  | `/api/data`     | JWT       | Список постов, опционально `?search=` (LIKE-фильтр) |
 | `POST` | `/api/posts`    | JWT       | Создание поста (`title`, `content`)             |
-| `GET`  | `/health`       | публичный | Проверка живости (healthcheck)                  |
+| `GET`  | `/health`       | публичный | Проверка доступности                            |
 
 Примеры:
 
 ```bash
-# 1. Логин -> получаем токен
+# 1. Передаём логин, получаем токен
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Admin123!"}'
@@ -71,13 +68,13 @@ curl -X POST http://localhost:3000/api/posts \
   -d '{"title":"Мой пост","content":"Текст поста"}'
 ```
 
-## Реализованные меры защиты (OWASP Top 10)
+## Реализованные меры защиты (с опорой на OWASP Top 10 2025)
 
 | Категория                          | Реализация                                                                                     |
 |------------------------------------|------------------------------------------------------------------------------------------------|
-| **A03 — SQL-инъекции**             | Все запросы — только через параметризованные statements (`db.prepare(...).get/all/run`), нигде нет конкатенации пользовательского ввода в SQL. Проверяется тестом `?search=' OR 1=1 --`. |
+| **A03 — SQL-инъекции**             | Запросы через параметризованные statements (`db.prepare(...).get/all/run`), нет конкатенации пользовательского ввода в SQL. Проверяется тестом `?search=' OR 1=1 --`. |
 | **A03 — XSS**                      | Все пользовательские данные перед возвратом в ответе пропускаются через OWASP-экранирование ([`escapeHtml()`](src/security.js:17)); плюс `helmet()` заголовки и `Content-Type: application/json`. |
-| **A07 — Broken Authentication**    | Пароли хранятся только как **bcrypt-хэши** (никогда в открытом виде); JWT выдаётся при успешном входе; middleware [`authenticateToken()`](src/auth.js:26) защищает все `/api/*`; единая ошибка «Invalid credentials» (нет перечисления пользователей); rate-limit на логине против брутфорса. |
+| **A07 — Broken Authentication**    | Пароли хранятся как **bcrypt-хэши**; JWT выдаётся при успешном входе; middleware [`authenticateToken()`](src/auth.js:26) защищает все `/api/*`; единая ошибка «Invalid credentials» (нет перечисления пользователей); rate-limit на логине против брутфорса. |
 | **A01 — Access Control**           | Все защищённые маршруты требуют валидный Bearer-JWT; 401 при отсутствии/порче/истечении токена. |
 | **A05 — Misconfiguration**         | `x-powered-by` отключён; лимит JSON-тела 10kb; глобальный обработчик ошибок не отдаёт стектрейсы; секреты — только через env. |
 | **A09 — Logging/Monitoring**       | Централизованное логирование ошибок на сервере.                                               |
@@ -95,7 +92,7 @@ curl -X POST http://localhost:3000/api/posts \
 6. `npm test` — автоматические security-тесты API (JWT-поток, попытки SQL-инъекций, XSS-экранирование, rate-limit).
 
 Локально можно запустить `npm run lint`, `npm run security:audit`, `npm test`;
-полный SCA-скан через OWASP Dependency-Check выполняется в CI (это Java-утилита).
+полный SCA-скан через OWASP Dependency-Check выполняется в CI.
 
 ### Скриншот отчета SAST
 
@@ -121,5 +118,5 @@ curl -X POST http://localhost:3000/api/posts \
 │   └── routes/
 │       ├── authRoutes.js      # POST /auth/login (+ rate-limit)
 │       └── dataRoutes.js      # GET /api/data, POST /api/posts
-└── test/api.test.js           # Интеграционные security-тесты (14 шт.)
+└── test/api.test.js           # Интеграционные security-тесты
 ```
