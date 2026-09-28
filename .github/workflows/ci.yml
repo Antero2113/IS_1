@@ -1,6 +1,6 @@
 name: CI — Security checks
 
-# Runs automatically on every push and pull request (to any branch).
+# Запускается автоматически при каждом push и создании pull request.
 on:
   push:
   pull_request:
@@ -23,28 +23,52 @@ jobs:
       - name: Install dependencies (locked)
         run: npm ci
 
-      # ------------------------------------------------------------
-      # SCA — Software Composition Analysis
-      # Scans the dependency tree (incl. transitive deps) against the
-      # npm advisory database. Fails the build on moderate+ issues.
-      # ------------------------------------------------------------
-      - name: SCA — npm audit (dependency vulnerabilities)
+      # =====================================================================
+      # SAST — Static Application Security Testing
+      # ---------------------------------------------------------------
+      # Для JavaScript в задании лабораторной работы указано:
+      #   «npm audit ИЛИ snyk test».
+      # npm audit сверяет дерево зависимостей (включая транзитивные) с базой
+      # известных уязвимостей npm. --audit-level=moderate останавливает сборку,
+      # если найдены проблемы уровня moderate и выше.
+      # =====================================================================
+      - name: SAST — npm audit (known vulnerabilities in dependencies)
         run: npm audit --audit-level=moderate
 
-      # ------------------------------------------------------------
-      # SAST — Static Application Security Testing
-      # ESLint + eslint-plugin-security flags insecure code patterns
-      # (eval, unsafe regex, object injection, ...).
-      # ------------------------------------------------------------
-      - name: SAST — ESLint with eslint-plugin-security
+      # Дополнительный SAST-слой: статический анализ ИСХОДНОГО КОДА
+      # (ESLint + eslint-plugin-security). Ловит опасные паттерны в самом коде:
+      # eval, небезопасные регулярные выражения, object injection и т.д.
+      - name: SAST — ESLint static code analysis
         run: npx eslint .
 
-      # ------------------------------------------------------------
-      # Automated security smoke tests:
-      #  - JWT flow / broken auth
-      #  - SQL injection attempts
-      #  - XSS escaping checks
-      #  - brute-force rate limiting
-      # ------------------------------------------------------------
+      # =====================================================================
+      # SCA — Software Composition Analysis
+      # ---------------------------------------------------------------
+      # В задании: «Используйте OWASP Dependency-Check ИЛИ Snyk».
+      # Здесь используется OWASP Dependency-Check (не требует токенов).
+      # Он анализирует зависимости (package-lock.json / node_modules), находит
+      # CPE-идентификаторы и сопоставляет их с записями CVE, после чего
+      # генерирует отчёт. Docker-образ action содержит свежую базу NVD,
+      # поэтому пайплайн не тратит время на её обновление.
+      # =====================================================================
+      - name: SCA — OWASP Dependency-Check (dependency vulnerability scan)
+        uses: dependency-check/Dependency-Check_Action@main
+        id: depcheck
+        with:
+          project: 'IS_1'
+          path: '.'
+          format: 'HTML'
+          out: 'reports'
+
+      # «Выдача отчёта» сканера: публикуем сгенерированный HTML-отчёт как
+      # артефакт сборки (Actions -> Artifacts -> dependency-check-report).
+      - name: Upload Dependency-Check report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: ${{ github.workspace }}/reports
+          if-no-files-found: error
+
+      # Динамические security-тесты API (JWT-поток, SQLi, XSS, rate-limit).
       - name: Run API security tests
         run: npm test

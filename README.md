@@ -88,11 +88,14 @@ curl -X POST http://localhost:3000/api/posts \
 **каждом push** и **создании pull request** и выполняет:
 
 1. `npm ci` — установка зависимостей по lock-файлу;
-2. **SCA** — `npm audit --audit-level=moderate` (проверка зависимостей на известные уязвимости);
-3. **SAST** — `npx eslint .` со статическим security-плагином `eslint-plugin-security`;
-4. `npm test` — автоматические security-тесты API (JWT-поток, попытки SQL-инъекций, XSS-экранирование, rate-limit).
+2. **SAST** — `npm audit --audit-level=moderate` (для JavaScript — как указано в задании: «npm audit или snyk test»);
+3. **SAST (доп.)** — `npx eslint .` со статическим security-плагином `eslint-plugin-security` (анализ исходного кода);
+4. **SCA** — **OWASP Dependency-Check** (`dependency-check/Dependency-Check_Action@main`) — сканирует зависимости проекта (package-lock.json / node_modules), сопоставляет их с CVE и генерирует HTML-отчёт;
+5. **Отчёт SCA** — загружается как артефакт сборки `dependency-check-report` (вкладка Actions → Artifacts);
+6. `npm test` — автоматические security-тесты API (JWT-поток, попытки SQL-инъекций, XSS-экранирование, rate-limit).
 
-Локально всё то же самое можно запустить командами `npm run lint`, `npm run security:audit`, `npm test`.
+Локально можно запустить `npm run lint`, `npm run security:audit`, `npm test`;
+полный SCA-скан через OWASP Dependency-Check выполняется в CI (это Java-утилита).
 
 ## Структура проекта
 
