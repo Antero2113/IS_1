@@ -6,8 +6,6 @@ const { createDb } = require('../src/db');
 const { createApp } = require('../src/app');
 const { getConfig } = require('../src/config');
 
-// High login limit on the shared instance so other tests never trip it;
-// the brute-force test below uses its own instance with a low limit.
 const config = getConfig({
   JWT_SECRET: 'test-secret-at-least-16-chars-long',
   DB_PATH: ':memory:',
@@ -48,9 +46,7 @@ after(() => {
   db?.close();
 });
 
-// ---------------------------------------------------------------------------
 // Health / misc
-// ---------------------------------------------------------------------------
 
 test('GET /health returns ok', async () => {
   const res = await fetch(`${baseUrl}/health`);
@@ -64,9 +60,7 @@ test('unknown route returns 404 JSON (no stack trace leak)', async () => {
   assert.deepEqual(await res.json(), { error: 'Not found' });
 });
 
-// ---------------------------------------------------------------------------
 // POST /auth/login
-// ---------------------------------------------------------------------------
 
 test('login with valid credentials returns a JWT', async () => {
   const res = await login('admin', 'Admin123!');
@@ -96,9 +90,7 @@ test('login with malformed input returns 400', async () => {
   assert.equal(res.status, 400);
 });
 
-// ---------------------------------------------------------------------------
 // Protected endpoints (JWT middleware)
-// ---------------------------------------------------------------------------
 
 test('GET /api/data without token returns 401', async () => {
   const res = await fetch(`${baseUrl}/api/data`);
@@ -123,9 +115,7 @@ test('GET /api/data with valid token returns the seeded posts', async () => {
   assert.equal(body.posts[0].author, 'alice');
 });
 
-// ---------------------------------------------------------------------------
 // SQL injection defense (OWASP A03)
-// ---------------------------------------------------------------------------
 
 test('search parameter is immune to SQL injection (parameterized LIKE)', async () => {
   const token = await getToken();
@@ -139,9 +129,7 @@ test('search parameter is immune to SQL injection (parameterized LIKE)', async (
   assert.equal(body.count, 0);
 });
 
-// ---------------------------------------------------------------------------
 // XSS defense (OWASP A03)
-// ---------------------------------------------------------------------------
 
 test('user content is HTML-escaped before being returned (XSS defense)', async () => {
   const token = await getToken();
@@ -173,9 +161,7 @@ test('POST /api/posts validates field lengths', async () => {
   assert.equal(res.status, 400);
 });
 
-// ---------------------------------------------------------------------------
 // Brute-force protection on login (separate app instance)
-// ---------------------------------------------------------------------------
 
 test('login endpoint rate-limits brute-force attempts', async () => {
   // Separate app instance with a low limit (max 3 attempts per window)
