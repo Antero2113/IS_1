@@ -97,6 +97,15 @@ curl -X POST http://localhost:3000/api/posts \
 Локально можно запустить `npm run lint`, `npm run security:audit`, `npm test`;
 полный SCA-скан через OWASP Dependency-Check выполняется в CI (это Java-утилита).
 
+### Скриншот отчета SAST
+
+<img width="487" height="267" alt="изображение" src="https://github.com/user-attachments/assets/85031bb9-cdac-4871-af7c-526756f7f666" />
+
+### Скриншот отчета SCA
+
+<img width="1025" height="727" alt="изображение" src="https://github.com/user-attachments/assets/b55bb178-5f16-455d-8b96-57d9096dd06b" />
+
+
 ## Структура проекта
 
 ```
