@@ -85,7 +85,6 @@ curl -X POST http://localhost:3000/api/posts \
 | **A07 — Broken Authentication**    | Пароли хранятся как **bcrypt-хэши**; JWT выдаётся при успешном входе; middleware [`authenticateToken()`](src/auth.js:26) защищает все `/api/*`; единая ошибка «Invalid credentials» (нет перечисления пользователей); rate-limit на логине против брутфорса. |
 | **A01 — Access Control**           | Все защищённые маршруты требуют валидный Bearer-JWT; 401 при отсутствии/порче/истечении токена. |
 | **A05 — Misconfiguration**         | `x-powered-by` отключён; лимит JSON-тела 10kb; глобальный обработчик ошибок не отдаёт стектрейсы; секреты — только через env. |
-| **A09 — Logging/Monitoring**       | Централизованное логирование ошибок на сервере.                                               |
 
 <br>
 
