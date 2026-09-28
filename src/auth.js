@@ -2,10 +2,6 @@
 
 const jwt = require('jsonwebtoken');
 
-/**
- * JWT signing/verification and the authentication middleware.
- * Created via a factory so tests can inject their own config (JWT secret).
- */
 function createAuth(config) {
   const ISSUER = 'is1-api';
   const AUDIENCE = 'is1-client';
@@ -18,11 +14,6 @@ function createAuth(config) {
     );
   }
 
-  /**
-   * Express middleware — protects all `/api/*` endpoints.
-   * Expects `Authorization: Bearer <token>`. Responds 401 if the token is
-   * missing, invalid, expired, or issued for a different audience/issuer.
-   */
   function authenticateToken(req, res, next) {
     const header = req.headers.authorization || '';
     const [scheme, token] = header.split(' ');

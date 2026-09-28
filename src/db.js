@@ -5,16 +5,6 @@ const bcrypt = require('bcryptjs');
 
 const BCRYPT_ROUNDS = 12;
 
-/**
- * Creates the SQLite database using Node's built-in `node:sqlite` module
- * (no native compilation required on any platform).
- *
- * SECURITY: every query below uses *parameterized statements* (`?`
- * placeholders) — user input is never concatenated into SQL strings.
- * This is the primary defense against SQL injection (OWASP A03).
- *
- * @param {{ path?: string }} options use ':memory:' for tests
- */
 function createDb({ path = './data/app.db' } = {}) {
   const db = new DatabaseSync(path);
 
@@ -45,7 +35,6 @@ function createDb({ path = './data/app.db' } = {}) {
   return db;
 }
 
-/** Seeds demo users. Passwords are stored as bcrypt hashes only. */
 function seed(db) {
   const { n } = db.prepare('SELECT COUNT(*) AS n FROM users').get();
   if (n > 0) return;
@@ -59,7 +48,6 @@ function seed(db) {
   ];
 
   for (const u of demoUsers) {
-    // Never store plaintext passwords — always a bcrypt hash (cost factor 12).
     const hash = bcrypt.hashSync(u.password, BCRYPT_ROUNDS);
     insertUser.run(u.username, hash, u.role);
   }
@@ -85,8 +73,6 @@ function findUserById(db, id) {
 
 function listPosts(db, search) {
   if (search) {
-    // Parameterized LIKE query — the user-controlled fragment is bound as a
-    // value, so a crafted `?search=' OR 1=1 --` can never alter the SQL.
     const like = `%${search}%`;
     return db
       .prepare(

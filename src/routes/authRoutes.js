@@ -6,10 +6,6 @@ const rateLimit = require('express-rate-limit');
 const { findByUsername } = require('../db');
 const { sanitizeText, isValidUsername, isValidPassword } = require('../security');
 
-/**
- * Brute-force protection: max N login attempts per IP per window
- * (default 5 per 15 minutes, configurable via env).
- */
 function createLoginLimiter(config) {
   return rateLimit({
     windowMs: config.loginRateLimitWindowMs,
@@ -20,18 +16,7 @@ function createLoginLimiter(config) {
   });
 }
 
-/**
- * POST /auth/login — authenticates a user and issues a JWT.
- *
- * Security notes:
- *  - passwords are compared with bcrypt (constant-time-ish), never plaintext;
- *  - the same generic 401 is returned for "unknown user" and "wrong password"
- *    to prevent username enumeration;
- *  - endpoint is rate-limited against brute force.
- */
 function authRoutes({ config }) {
-  // Router is created per app instance so rate-limit stores and route
-  // registrations are never shared between applications.
   const router = express.Router();
   const loginLimiter = createLoginLimiter(config);
 

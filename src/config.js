@@ -1,17 +1,12 @@
 'use strict';
 
-/**
- * Centralized, environment-based configuration.
- * Secrets must NOT be committed — set JWT_SECRET via environment variable.
- */
-
 const DEFAULT_JWT_SECRET = 'insecure-dev-secret-change-me';
 
 function getConfig(env = process.env) {
   const jwtSecret = env.JWT_SECRET || DEFAULT_JWT_SECRET;
   if (jwtSecret === DEFAULT_JWT_SECRET || jwtSecret.length < 16) {
     console.warn(
-      '[config] WARNING: JWT_SECRET is missing/weak. Set a strong secret (>=16 chars) in production.'
+      '[config] WARNING: JWT_SECRET is missing/weak. Set a strong secret (>=16 chars).'
     );
   }
 
