@@ -6,6 +6,8 @@
 с автоматизированной проверкой кода на уязвимости и интеграцией инструментов
 безопасности в CI/CD.
 
+<br>
+
 ## Стек
 
 - **Язык / рантайм:** Node.js ≥ 22.5 
@@ -13,6 +15,8 @@
 - **БД:** SQLite 
 - **Аутентификация:** JWT (`jsonwebtoken`) + bcrypt (`bcryptjs`, cost factor 12)
 - **Защита:** `helmet` (HTTP-заголовки), `express-rate-limit` (брутфорс-защита логина)
+
+<br>
 
 ## Запуск
 
@@ -39,6 +43,8 @@ npm run dev      # с автоперезапуском (node --watch)
 | `JWT_EXPIRES_IN`            | `1h`                            | Время жизни токена                  |
 | `LOGIN_RATE_LIMIT_WINDOW_MS`| `900000` (15 мин)               | Окно rate-limit для `/auth/login`   |
 | `LOGIN_RATE_LIMIT_MAX`      | `5`                             | Максимум попыток входа за окно      |
+
+<br>
 
 ## API
 
@@ -68,6 +74,8 @@ curl -X POST http://localhost:3000/api/posts \
   -d '{"title":"Мой пост","content":"Текст поста"}'
 ```
 
+<br>
+
 ## Реализованные меры защиты (с опорой на OWASP Top 10 2025)
 
 | Категория                          | Реализация                                                                                     |
@@ -78,6 +86,8 @@ curl -X POST http://localhost:3000/api/posts \
 | **A01 — Access Control**           | Все защищённые маршруты требуют валидный Bearer-JWT; 401 при отсутствии/порче/истечении токена. |
 | **A05 — Misconfiguration**         | `x-powered-by` отключён; лимит JSON-тела 10kb; глобальный обработчик ошибок не отдаёт стектрейсы; секреты — только через env. |
 | **A09 — Logging/Monitoring**       | Централизованное логирование ошибок на сервере.                                               |
+
+<br>
 
 ## CI/CD — GitHub Actions
 
@@ -94,14 +104,19 @@ curl -X POST http://localhost:3000/api/posts \
 Локально можно запустить `npm run lint`, `npm run security:audit`, `npm test`;
 полный SCA-скан через OWASP Dependency-Check выполняется в CI.
 
+<br>
+
 ### Скриншот отчета SAST
 
 <img width="487" height="267" alt="изображение" src="https://github.com/user-attachments/assets/85031bb9-cdac-4871-af7c-526756f7f666" />
+
+<br>
 
 ### Скриншот отчета SCA
 
 <img width="1025" height="727" alt="изображение" src="https://github.com/user-attachments/assets/b55bb178-5f16-455d-8b96-57d9096dd06b" />
 
+<br>
 
 ## Структура проекта
 
